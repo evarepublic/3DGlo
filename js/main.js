@@ -68,20 +68,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Popup
   const togglePopUp = () => {
-    const popup = document.querySelector(".popup"),
-      popupBtns = document.querySelectorAll(".popup-btn"),
-      popupCloseBtn = document.querySelector(".popup-close");
+    const popUp = document.querySelector(".popup"),
+      popUpBtns = document.querySelectorAll(".popup-btn");
 
-    popupBtns.forEach((elem) =>
+    popUpBtns.forEach((elem) =>
       elem.addEventListener("click", () => {
-        popup.style.display = "block";
+        popUp.style.display = "block";
       })
     );
 
-    popupCloseBtn.addEventListener(
-      "click",
-      () => (popup.style.display = "none")
-    );
+    popUp.addEventListener("click", (event) => {
+      let target = event.target;
+      if (target.classList.contains("popup-close")) {
+        popUp.style.display = "none";
+      } else {
+        target = target.closest(".popup-content");
+        if (!target) {
+          popUp.style.display = "none";
+        }
+      }
+    });
   };
 
   togglePopUp();
@@ -105,7 +111,7 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     tabHeader.addEventListener("click", (event) => {
-      let target = event.target.closest(".service-header-tab");
+      const target = event.target.closest(".service-header-tab");
       if (target) {
         tab.forEach((item, i) => {
           if (item === target) {
