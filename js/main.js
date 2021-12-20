@@ -48,33 +48,106 @@ window.addEventListener("DOMContentLoaded", () => {
   const idInterval = setInterval(countTimer, 1000, "28 november 2021");
 
   // Menu
-  const toggleMenu = () => {
-    const btnMenu = document.querySelector(".menu"),
-      menu = document.querySelector("menu"),
-      closeBtn = document.querySelector(".close-btn"),
-      menuItems = menu.querySelectorAll("ul>li");
+  const scrollToBlock = (block) => {
+    const blockWrapper = document.getElementById(block),
+      scrollTopToValue = blockWrapper.getBoundingClientRect().top;
+    window.scrollTo({
+      top: scrollTopToValue,
+      behavior: "smooth",
+    });
+  };
 
-    const handlerMenu = () => {
-      menu.classList.toggle("active-menu");
+  const toggleMenu = () => {
+    const menu = document.querySelector("menu"),
+      body = document.querySelector("body");
+
+    const handlerMenu = (e) => {
+      let target = e.target;
+      if (!menu.classList.contains("active-menu")) {
+        target = e.target.closest(".menu");
+        if (target) {
+          menu.classList.add("active-menu");
+        } else {
+          return;
+        }
+      } else {
+        e.preventDefault();
+        if (
+          !target.matches("menu") ||
+          target.matches(".close-btn") ||
+          target.closest("ul>li")
+        ) {
+          menu.classList.remove("active-menu");
+          if (target.closest("ul>li")) {
+            const block = target.closest("li>a").href.split("#")[1];
+            scrollToBlock(block);
+          }
+        } else {
+          return;
+        }
+      }
     };
 
-    btnMenu.addEventListener("click", handlerMenu);
-    closeBtn.addEventListener("click", handlerMenu);
-
-    menuItems.forEach((elem) => elem.addEventListener("click", handlerMenu));
+    body.addEventListener("click", handlerMenu);
   };
 
   toggleMenu();
 
+  // ScrollDownBtn
+  const scrollDown = (btnLink) => {
+    const scrollDownBtn = document.querySelector(`a[href$="${btnLink}"`);
+    scrollDownBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      scrollToBlock(btnLink);
+    });
+  };
+
+  scrollDown("service-block");
+
   // Popup
   const togglePopUp = () => {
     const popUp = document.querySelector(".popup"),
+      popUpContent = popUp.querySelector(`[class$='-content']`),
       popUpBtns = document.querySelectorAll(".popup-btn");
 
+    let count = 0,
+      popUpInterval;
+
+    const screenSizeCheck = () => {
+      popUp.style.display = "block";
+      if (document.documentElement.clientWidth <= 768) {
+        cancelAnimationFrame(popUpInterval);
+      } else {
+        popUpInterval = requestAnimationFrame(popUpAnimate);
+        count = 0;
+      }
+    };
+
+    const popUpAnimate = function () {
+      popUpInterval = requestAnimationFrame(popUpAnimate);
+      count++;
+      if (count > 70) {
+        cancelAnimationFrame(popUpInterval);
+        return;
+      }
+      if (count === 1) {
+        popUp.style.opacity = 0;
+      } else if (count < 30) {
+        popUp.style.opacity = (count * 3.3) / 100;
+      } else if (count >= 30 && count < 40) {
+        popUpContent.style.transition = `1s`;
+        popUpContent.style.transform = `rotate(15deg)`;
+      } else if (count >= 40 && count < 50) {
+        popUpContent.style.transition = `1s`;
+        popUpContent.style.transform = `rotate(-15deg)`;
+      } else if (count === 50) {
+        popUpContent.style.transition = `1s`;
+        popUpContent.style.transform = `rotate(0deg)`;
+      }
+    };
+
     popUpBtns.forEach((elem) =>
-      elem.addEventListener("click", () => {
-        popUp.style.display = "block";
-      })
+      elem.addEventListener("click", screenSizeCheck)
     );
 
     popUp.addEventListener("click", (event) => {
