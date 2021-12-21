@@ -199,13 +199,28 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Slider
   const slider = () => {
-    const slide = document.querySelectorAll(".portfolio-item"),
-      btn = document.querySelectorAll(".portfolio-btn"),
-      dot = document.querySelectorAll(".dot"),
-      slider = document.querySelector(".portfolio-content");
+    const slider = document.querySelector(".portfolio-content"),
+      slide = slider.querySelectorAll(".portfolio-item"),
+      dotsArea = slider.querySelector("ul");
 
     let currentSlide = 0,
+      dot,
       intervalId;
+
+    const createDot = (block) => {
+      const dot = document.createElement("li");
+      dot.classList.add("dot");
+      block.insertAdjacentElement("beforeend", dot);
+    };
+
+    const dotsNavigation = () => {
+      for (let i = 0; i < slide.length; i++) {
+        createDot(dotsArea);
+      }
+      dot = dotsArea.querySelectorAll("li");
+    };
+
+    dotsNavigation();
 
     const prevSlide = (elem, index, strClass) => {
       elem[index].classList.remove(strClass);
@@ -232,7 +247,7 @@ window.addEventListener("DOMContentLoaded", () => {
       nextSlide(dot, currentSlide, "dot-active");
     };
 
-    const startSlide = (speed = 3000) => {
+    const startSlide = (speed = 1500) => {
       intervalId = setInterval(autoPlaySlide, speed);
     };
 
@@ -270,6 +285,7 @@ window.addEventListener("DOMContentLoaded", () => {
       nextSlide(dot, currentSlide, "dot-active");
     });
 
+    // события mouseenter/mouseleave не подходят
     slider.addEventListener("mouseover", (event) => {
       if (
         event.target.matches(".portfolio-btn") ||
@@ -287,7 +303,7 @@ window.addEventListener("DOMContentLoaded", () => {
         startSlide();
       }
     });
-    startSlide(1500);
+    startSlide();
   };
 
   slider();
