@@ -406,4 +406,78 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   calc();
+
+  // Validator
+
+  const forms = document.querySelectorAll("form"),
+    pattern = {
+      name: /[а-я]{2,15}/i,
+      message: /[а-я,.?!:/]/i,
+    },
+    method = {
+      name: [["notEmpty"], ["pattern", "name"]],
+      phone: [["notEmpty"], ["pattern", "phone"]],
+      email: [["notEmpty"], ["pattern", "email"]],
+      message: [["notEmpty"], ["pattern", "message"]],
+    };
+
+  forms.forEach((item) => {
+    new Validator({ selector: `#${item.id}`, pattern, method }).init();
+  });
+
+  // Send form (AJAX)
+  // const sendForm = () => {
+  //   const errorMessage = "Что-то пошло не так...",
+  //     loadMessage = "Загрузка...",
+  //     successMessage = "Спасибо! Мы скоро с вами свяжемся!";
+
+  //   const form = document.getElementById("form1");
+
+  //   const statusMessage = document.createElement("div");
+  //   statusMessage.style.cssText = "font-size: 2rem;";
+
+  //   form.addEventListener("submit", (e) => {
+  //     e.preventDefault();
+  //     form.appendChild(statusMessage);
+  //     statusMessage.textContent = loadMessage;
+  //     const formData = new FormData(form);
+
+  //     const body = {};
+
+  //     formData.forEach((val, key) => {
+  //       body[key] = val;
+  //     });
+
+  //     postData(
+  //       body,
+  //       () => (statusMessage.textContent = successMessage),
+  //       (error) => {
+  //         statusMessage.textContent = errorMessage;
+  //         console.error(error);
+  //       }
+  //     );
+  //   });
+
+  //   const postData = (body, outputData, errorData) => {
+  //     const request = new XMLHttpRequest();
+
+  //     request.addEventListener("readystatechange", () => {
+  //       if (request.readyState !== 4) {
+  //         return;
+  //       }
+  //       if (request.status === 200) {
+  //         outputData();
+  //       } else {
+  //         errorData(request.status);
+  //       }
+  //     });
+
+  //     request.open("POST", "./server.php");
+  //     request.setRequestHeader("Content-Type", "application/json");
+
+  //     request.send(JSON.stringify(body));
+  //   };
+  // };
+
+  // sendForm();
 });
