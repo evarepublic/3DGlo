@@ -407,24 +407,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   calc();
 
-  // Validator
-
-  const forms = document.querySelectorAll("form"),
-    pattern = {
-      name: /[а-я]{2,15}/i,
-      message: /[а-я,.?!:/]/i,
-    },
-    method = {
-      name: [["notEmpty"], ["pattern", "name"]],
-      phone: [["notEmpty"], ["pattern", "phone"]],
-      email: [["notEmpty"], ["pattern", "email"]],
-      message: [["notEmpty"], ["pattern", "message"]],
-    };
-
-  forms.forEach((item) => {
-    new Validator({ selector: `#${item.id}`, pattern, method }).init();
-  });
-
   // Send form (AJAX)
   const sendForm = () => {
     const preloader = document.createElement("img");
