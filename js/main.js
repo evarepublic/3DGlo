@@ -426,58 +426,82 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   // Send form (AJAX)
-  // const sendForm = () => {
-  //   const errorMessage = "Что-то пошло не так...",
-  //     loadMessage = "Загрузка...",
-  //     successMessage = "Спасибо! Мы скоро с вами свяжемся!";
+  const sendForm = () => {
+    const preloader = document.createElement("img");
+    preloader.src = "../images/preloader.gif";
+    preloader.style.width = "45px";
 
-  //   const form = document.getElementById("form1");
+    const forms = document.querySelectorAll("#form1, #form2, #form3");
 
-  //   const statusMessage = document.createElement("div");
-  //   statusMessage.style.cssText = "font-size: 2rem;";
+    const postData = (body, outputData, errorData) => {
+      const request = new XMLHttpRequest();
 
-  //   form.addEventListener("submit", (e) => {
-  //     e.preventDefault();
-  //     form.appendChild(statusMessage);
-  //     statusMessage.textContent = loadMessage;
-  //     const formData = new FormData(form);
+      request.addEventListener("readystatechange", () => {
+        if (request.readyState !== 4) {
+          return;
+        }
+        if (request.status === 200) {
+          outputData();
+        } else {
+          errorData(request.status);
+        }
+      });
 
-  //     const body = {};
+      request.open("POST", "./server.php");
+      request.setRequestHeader("Content-Type", "application/json");
 
-  //     formData.forEach((val, key) => {
-  //       body[key] = val;
-  //     });
+      request.send(JSON.stringify(body));
+    };
 
-  //     postData(
-  //       body,
-  //       () => (statusMessage.textContent = successMessage),
-  //       (error) => {
-  //         statusMessage.textContent = errorMessage;
-  //         console.error(error);
-  //       }
-  //     );
-  //   });
+    forms.forEach((form) => {
+      const inputs = [...form.elements].filter(
+        (item) => item.nodeName.toLowerCase() === "input"
+      );
 
-  //   const postData = (body, outputData, errorData) => {
-  //     const request = new XMLHttpRequest();
+      const validator = (e) => {
+        const target = e.target;
+        const replacer = (exp) => {
+          const index = target.value.length - 1,
+            elem = target.value.split("")[index];
+          if (!exp.test(elem)) {
+            target.value = target.value.replace(elem, "");
+          }
+        };
+        if (target.type !== "text" && target.type !== "tel") {
+          return;
+        } else if (target.type === "text") {
+          replacer(/[а-яё]/gi);
+        } else if (target.type === "tel") {
+          replacer(/[+\d]/g);
+        }
+      };
 
-  //     request.addEventListener("readystatechange", () => {
-  //       if (request.readyState !== 4) {
-  //         return;
-  //       }
-  //       if (request.status === 200) {
-  //         outputData();
-  //       } else {
-  //         errorData(request.status);
-  //       }
-  //     });
+      inputs.forEach((input) => input.addEventListener("input", validator));
 
-  //     request.open("POST", "./server.php");
-  //     request.setRequestHeader("Content-Type", "application/json");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        form.appendChild(preloader);
+        const formData = new FormData(form);
 
-  //     request.send(JSON.stringify(body));
-  //   };
-  // };
+        const body = {};
 
-  // sendForm();
+        formData.forEach((val, key) => {
+          body[key] = val;
+        });
+
+        postData(
+          body,
+          () => (preloader.src = "../images/success.png"),
+          (error) => {
+            preloader.src = "../images/warning.png";
+            console.error(error);
+          }
+        );
+
+        form.reset();
+      });
+    });
+  };
+
+  sendForm();
 });
