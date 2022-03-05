@@ -416,24 +416,13 @@ window.addEventListener("DOMContentLoaded", () => {
     const forms = document.querySelectorAll("#form1, #form2, #form3");
 
     const postData = (body) => {
-      return new Promise((res, rej) => {
-        const request = new XMLHttpRequest();
-
-        request.addEventListener("readystatechange", () => {
-          if (request.readyState !== 4) {
-            return;
-          }
-          if (request.status === 200) {
-            res();
-          } else {
-            rej(request.status);
-          }
-        });
-
-        request.open("POST", "./server.php");
-        request.setRequestHeader("Content-Type", "application/json");
-
-        request.send(JSON.stringify(body));
+      return fetch("./server.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        referrer: "client",
+        body: JSON.stringify(body),
       });
     };
 
@@ -466,15 +455,17 @@ window.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         form.appendChild(preloader);
         const formData = new FormData(form);
-
         const body = {};
-
         formData.forEach((val, key) => {
           body[key] = val;
         });
-
         postData(body)
-          .then(() => (preloader.src = "../images/success.png"))
+          .then((res) => {
+            if (res.status !== 200) {
+              throw new Error("status is not 200");
+            }
+            preloader.src = "../images/success.png";
+          })
           .catch((err) => {
             preloader.src = "../images/warning.png";
             console.error(err);
