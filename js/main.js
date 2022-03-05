@@ -415,24 +415,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const forms = document.querySelectorAll("#form1, #form2, #form3");
 
-    const postData = (body, outputData, errorData) => {
-      const request = new XMLHttpRequest();
+    const postData = (body) => {
+      return new Promise((res, rej) => {
+        const request = new XMLHttpRequest();
 
-      request.addEventListener("readystatechange", () => {
-        if (request.readyState !== 4) {
-          return;
-        }
-        if (request.status === 200) {
-          outputData();
-        } else {
-          errorData(request.status);
-        }
+        request.addEventListener("readystatechange", () => {
+          if (request.readyState !== 4) {
+            return;
+          }
+          if (request.status === 200) {
+            res();
+          } else {
+            rej(request.status);
+          }
+        });
+
+        request.open("POST", "./server.php");
+        request.setRequestHeader("Content-Type", "application/json");
+
+        request.send(JSON.stringify(body));
       });
-
-      request.open("POST", "./server.php");
-      request.setRequestHeader("Content-Type", "application/json");
-
-      request.send(JSON.stringify(body));
     };
 
     forms.forEach((form) => {
@@ -471,16 +473,13 @@ window.addEventListener("DOMContentLoaded", () => {
           body[key] = val;
         });
 
-        postData(
-          body,
-          () => (preloader.src = "../images/success.png"),
-          (error) => {
+        postData(body)
+          .then(() => (preloader.src = "../images/success.png"))
+          .catch((err) => {
             preloader.src = "../images/warning.png";
-            console.error(error);
-          }
-        );
-
-        form.reset();
+            console.error(err);
+          })
+          .finally(() => form.reset());
       });
     });
   };
